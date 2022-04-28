@@ -4,14 +4,22 @@ namespace App\Http\Controllers;
 
 use App\Events\Votes;
 use App\Models\Candidate;
+use Illuminate\Support\Str;
 use Illuminate\Http\Request;
+use Illuminate\Database\QueryException;
+use Illuminate\Support\Facades\Session;
 
 class CandidateController extends Controller
 {
     public function index() {
+        try {
         $candidates = Candidate::all();
 
         return view('display', ['candidates' => $candidates]);
+        } catch (QueryException $e) {
+            echo 'Candidates table does not exist. Please run php artisan migrate.';
+            return;
+        }
     }
 
     // Cast vote for candidate by passing the ballot placement number as parameter
@@ -40,17 +48,24 @@ class CandidateController extends Controller
             'first_name' => 'required',
             'last_name' => 'required',
             'position' => 'required',
-            'ballot' => 'required',
+            'ballot' => 'required|integer|min:1',
         ]);
 
+        try {
+
         Candidate::create([
-            'position' => request()->position,
+            'position' => Str::ucfirst(request()->position),
             'ballot_placement' => request()->ballot,
-            'first_name' => request()->first_name,
-            'last_name' => request()->last_name,
+            'first_name' => Str::ucfirst(request()->first_name),
+            'last_name' => Str::ucfirst(request()->last_name),
         ]);
 
         return back();
+
+        } catch (QueryException $e) {
+            Session::flash('error', 'Ballot position already exists.');
+            return back();
+        }
     }
 
 }

@@ -30,7 +30,10 @@
     <body class="antialiased">
         <div class="relative flex items-top justify-center bg-gray-100">
             <div class="btn-group" style="margin-top:2rem">
-                <h2>Candidates information</h2>
+                <h2>Candidate(s) information</h2>
+                @if (session('error'))
+                    <div class="alert alert-danger">{{ session('error') }}</div>
+                @endif
                 <form method="post" action="{{route('start')}}">
                     @csrf
                     <div class="form-group">
@@ -57,12 +60,13 @@
                             <div class="invalid-feedback" style="color:red">{{$message}}</div>
                         @enderror
                     </div>
-                    <input type="submit" class="btn btn-primary">
+                    <input type="submit" class="btn btn-primary" value="Add candidate to start tracking votes">
                 </form>
             </div>
         </div>
-        <div class="relative flex items-top justify-center min-h-screen bg-gray-100 dark:bg-gray-900 sm:items-center py-4 sm:pt-0">
+        <div class="relative flex items-top justify-center min-h-screen bg-gray-100">
 
+            @if (count($candidates) > 0 && $candidates != null)
             <div class="row">
                 <h1>Poll Results Tracking</h1>
                 <table class="table">
@@ -75,7 +79,6 @@
                         </tr>
                     </head>
                     <tbody>
-                        @if (count($candidates) > 0)
                         @foreach ($candidates as $candidate)
                         <tr>
                             <td>{{$candidate->position}}</td>
@@ -89,10 +92,11 @@
                         </tr>
 
                         @endforeach
-                        @endif
+
                     </tbody>
                 </table>
             </div>
+            @endif
 
         </div>
 
